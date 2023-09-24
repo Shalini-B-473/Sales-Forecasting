@@ -1,0 +1,113 @@
+<<<<<<<<<home.html>>>>>>>>>>>>>>>>>
+<div class="outer">
+	<form (ngSubmit)="onPredict()">
+		<label for="files" class="drop-container">
+			<span>
+				<h3>Upload your data set</h3>
+			</span>
+			<span>Supported files(.csv)</span>
+			<span class="drop-title">Drop files here</span>
+			or
+			<input type="file" id="choose-file" accept="csv" (change)="onFileChanged($event)" required>
+			<!-- onchange="console.log(event.target.files)"  (change)="onFileChanged($event)" (change)="onFileSelected($event)" onchange="onFileSelected($event)"   #fileUpload-->
+		</label>
+		<div class="input-fields">
+			<h2>Select periodicity</h2>
+			<mat-form-field appearance="fill">
+				<select class="custom-select" matNativeControl [(ngModel)]="selected" name="period" required>
+					<option value="" selected disabled>--Select an option --</option>
+					<option *ngFor="let period of periodd" [value]="period.value">
+						{{period.viewValue}}
+					</option>
+				</select>
+
+			</mat-form-field>
+			<p> Selected period: {{selected}} </p>
+			<h2>Select number of period to predict</h2>
+			<mat-form-field>
+				<input class="input-predict" type="text" name="predictValue" placeholder="Enter number" [(ngModel)]="predictValue" matInput>
+			</mat-form-field>
+			<button mat-raised-button color="primary" type="submit">Predict</button> <!--(click)="onPredict()" -->
+
+		</div>
+
+	</form>
+</div>
+
+
+<<<<<<<<<<<<<<<<<<<<<home.ts>>>>>>>>>>>>>>>>>>>>>
+import { Component } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpRequest, HttpEvent , HttpHeaders} from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
+
+interface Period {
+  value: string;
+  viewValue: string;
+}
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class HomeComponent {
+  selected: string="";
+  predictValue: string="";
+  selectedFile: any = null;
+
+  periodd: Period[] = [
+    {value: 'Daily' , viewValue : 'Daily'},
+    {value: 'Weekly', viewValue: 'Weekly'},
+    {value: 'Monthly', viewValue: 'Monthly'},
+    {value: 'Yearly', viewValue: 'Yearly'},
+  ];
+  constructor(private http: HttpClient, private router:Router) {}
+
+  onFileChanged(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+  onPredict(){
+    if (!this.selectedFile) {
+      console.error("No file selected");
+      return;
+    }
+  
+    if (!this.selected) {
+      console.error("No period selected");
+      return;
+    }
+  
+    if (!this.predictValue) {
+      console.error("No predict value selected");
+      return;
+    }
+    console.log(this.selected);
+    console.log(this.predictValue);
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+    formData.append('period', this.selected);
+    formData.append('range', this.predictValue);
+
+  
+    this.http.post('http://localhost:5000/', formData).subscribe(
+      (response) => {
+        console.log(response);
+        this.router.navigate(['/result']);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+
+
+  }
+
+  }
